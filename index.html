@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAL-V Liberty「飞行汽车」：技术可行性、适航与市场边界</title>
+<meta name="description" content="针对荷兰路行式旋翼机飞行汽车 PAL-V Liberty（PAL-V FlyDrive）的全方位调研与分析：自转旋翼技术、道路/航空双轨取证、EASA 无技术异议与市场可行性。">
+<style>
+  :root{
+    --surface-1:#fcfcfb;
+    --surface-page:#f9f9f7;
+    --surface-2:#f2f1ec;
+    --ink:#0b0b0b;
+    --ink-2:#52514e;
+    --muted:#898781;
+    --grid:#e1e0d9;
+    --baseline:#c3c2b7;
+    --accent:#2a78d6;
+    --accent-strong:#184f95;
+    --accent-wash:#e8f0fb;
+    --border:rgba(11,11,11,0.10);
+    --border-strong:rgba(11,11,11,0.18);
+    --good:#0ca30c;
+    --warning:#fab219;
+    --serious:#ec835a;
+    --critical:#d03b3b;
+    --code-bg:#f0efe9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --surface-1:#1a1a19;
+      --surface-page:#0d0d0d;
+      --surface-2:#232322;
+      --ink:#f0efec;
+      --ink-2:#c3c2b7;
+      --muted:#898781;
+      --grid:#2c2c2a;
+      --baseline:#383835;
+      --accent:#3987e5;
+      --accent-strong:#86b6ef;
+      --accent-wash:#1e2a3a;
+      --border:rgba(255,255,255,0.10);
+      --border-strong:rgba(255,255,255,0.18);
+      --good:#0ca30c;
+      --warning:#fab219;
+      --serious:#ec835a;
+      --critical:#e66767;
+      --code-bg:#232322;
+    }
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--surface-page);
+    color:var(--ink);
+    line-height:1.7;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .en{color:var(--ink-2);font-style:italic;font-weight:400}
+
+  /* Header */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:color-mix(in srgb, var(--surface-1) 86%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .topbar .crumb{font-size:13px;color:var(--ink-2);white-space:nowrap}
+  .topbar .crumb b{color:var(--accent);font-weight:600}
+  .topbar .badge{font-size:12px;color:var(--ink-2);border:1px solid var(--border-strong);border-radius:999px;padding:2px 10px;white-space:nowrap}
+
+  /* Layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .grid{display:grid;grid-template-columns:250px 1fr;gap:40px;margin-top:8px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+  /* Sidebar TOC */
+  .toc{position:sticky;top:76px;align-self:start;font-size:14px;max-height:calc(100vh - 100px);overflow:auto}
+  .toc h4{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px}
+  .toc a{display:block;color:var(--ink-2);padding:5px 10px;border-left:2px solid var(--grid);margin:2px 0;line-height:1.45}
+  .toc a:hover{color:var(--accent);border-left-color:var(--accent);text-decoration:none}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+  @media(max-width:900px){.toc{display:none}}
+
+  /* Hero */
+  .hero{
+    margin:28px 0 8px;padding:40px 36px;border-radius:14px;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, var(--surface-1)), var(--surface-1) 55%);
+    border:1px solid var(--border);
+  }
+  .hero .kicker{font-size:13px;color:var(--ink-2);letter-spacing:.04em;margin-bottom:10px}
+  .hero h1{font-size:clamp(26px,4vw,40px);line-height:1.22;margin:0 0 16px;font-weight:700}
+  .hero .lead{font-size:17px;color:var(--ink);max-width:62ch}
+  .hero .lead .en{display:block;margin-top:6px;font-size:15px;color:var(--ink-2)}
+  .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px 28px;font-size:13px;color:var(--ink-2)}
+  .meta b{color:var(--ink);font-weight:600}
+  .fig-note{font-size:12.5px;color:var(--muted);margin-top:18px;border-top:1px dashed var(--border-strong);padding-top:12px}
+  figure{margin:18px 0}
+  figure img{width:100%;height:auto;border-radius:10px;border:1px solid var(--border);display:block;background:var(--surface-2)}
+  figure figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+  /* Sections */
+  section{margin:44px 0}
+  h2{
+    font-size:24px;margin:0 0 6px;padding-top:8px;
+    display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    border-bottom:2px solid var(--accent);padding-bottom:8px;
+  }
+  h2 .num{color:var(--accent);font-variant-numeric:tabular-nums;font-weight:700}
+  h2 .en{font-size:15px}
+  h3{font-size:18px;margin:26px 0 8px}
+  h4{font-size:15px;margin:20px 0 6px}
+  p{margin:10px 0}
+  .lead-para{font-size:16.5px}
+  ul,ol{padding-left:22px}
+  li{margin:6px 0}
+  .muted{color:var(--ink-2)}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* Stat cards */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+  .stat{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+  .stat .v{font-size:26px;font-weight:700;letter-spacing:-.01em;color:var(--accent)}
+  .stat .v small{font-size:15px;font-weight:600}
+  .stat .l{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+
+  /* Callout boxes */
+  .box{border:1px solid var(--border-strong);border-left:4px solid var(--accent);border-radius:8px;padding:16px 18px;margin:16px 0;background:var(--surface-1)}
+  .box.warn{border-left-color:var(--warning)}
+  .box.key{border-left-color:var(--accent);background:var(--accent-wash)}
+  .box .box-title{font-weight:700;margin-bottom:6px;font-size:14px;color:var(--accent-strong)}
+  .box.warn .box-title{color:var(--serious)}
+  .box p{margin:6px 0}
+
+  /* Tables */
+  .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:10px;background:var(--surface-1)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+  th,td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--grid)}
+  th{font-weight:600;background:var(--surface-2);color:var(--ink-2);font-size:13px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td .en{display:block;font-size:12.5px}
+  td.verdict-good{color:var(--good);font-weight:600}
+  td.verdict-mid{color:var(--serious);font-weight:600}
+  td.verdict-bad{color:var(--critical);font-weight:600}
+  .tbl-caption{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+
+  /* Tag / status */
+  .tag{display:inline-block;font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 8px;margin:2px 2px 2px 0;white-space:nowrap}
+  .tag.done{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+  .tag.pending{background:color-mix(in srgb,var(--warning) 20%,transparent);color:#8a6100;border:1px solid color-mix(in srgb,var(--warning) 55%,transparent)}
+  .tag.no{background:color-mix(in srgb,var(--critical) 13%,transparent);color:var(--critical);border:1px solid color-mix(in srgb,var(--critical) 40%,transparent)}
+  @media (prefers-color-scheme: dark){.tag.pending{color:#f0c14d}}
+
+  /* Timeline */
+  .timeline{position:relative;margin:20px 0 8px;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--baseline)}
+  .tl-item{position:relative;margin:0 0 18px}
+  .tl-item::before{content:"";position:absolute;left:-24px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid var(--surface-page)}
+  .tl-item .d{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-size:14px}
+  .tl-item .t{margin-top:1px}
+  .tl-item .en{font-size:12.5px}
+
+  /* Architecture diagram */
+  .arch{border:1px solid var(--border);border-radius:12px;background:var(--surface-1);padding:18px;margin:16px 0}
+  .arch .sys{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch}
+  .arch .col{display:flex;flex-direction:column;gap:10px}
+  .arch .node{border:1px solid var(--border-strong);border-radius:8px;padding:10px 12px;background:var(--surface-2)}
+  .arch .node h5{margin:0 0 4px;font-size:13px;color:var(--accent-strong)}
+  .arch .node p{margin:0;font-size:12.5px;color:var(--ink-2)}
+  .arch .link{display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-2);text-align:center;writing-mode:vertical-rl;border-left:2px dashed var(--baseline);border-right:2px dashed var(--baseline);padding:6px;border-radius:6px}
+  .arch .ext{border-style:dashed;background:transparent}
+  @media(max-width:760px){.arch .sys{grid-template-columns:1fr}.arch .link{writing-mode:horizontal-tb;border-left:none;border-right:none;border-top:2px dashed var(--baseline);border-bottom:2px dashed var(--baseline)}}
+
+  /* Chart */
+  .viz-root{
+    color-scheme:light;
+    --surface-1:#fcfcfb;--ink:#0b0b0b;--ink-2:#52514e;--muted:#898781;
+    --grid:#e1e0d9;--series-1:#2a78d6;--series-1-weak:#9ec5f4;
+  }
+  @media (prefers-color-scheme: dark){
+    .viz-root{color-scheme:dark;--surface-1:#1a1a19;--ink:#f0efec;--ink-2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--series-1:#3987e5;--series-1-weak:#3b6ea8}
+  }
+  .chart{border:1px solid var(--border);border-radius:12px;background:var(--surface-1);padding:20px 18px 14px;margin:16px 0}
+  .chart figcaption{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .chart .title{font-weight:700;font-size:15px}
+  .chart .subtitle{font-size:13px;color:var(--ink-2);margin:2px 0 14px}
+  .chart .axis{font-size:11px;fill:var(--muted)}
+  .chart .bar-label{font-size:12.5px;fill:var(--ink)}
+  .chart .bar-val{font-size:12px;fill:var(--ink-2);font-variant-numeric:tabular-nums}
+
+  /* References */
+  .refs{font-size:13.5px}
+  .refs li{margin:8px 0;word-break:break-all}
+  .refs .url{color:var(--ink-2);font-size:12px;word-break:break-all}
+
+  /* Legend / reading guide */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+  .legend span{font-size:12.5px;color:var(--ink-2);border:1px solid var(--border-strong);border-radius:6px;padding:4px 10px}
+
+  footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--border-strong);font-size:13px;color:var(--ink-2)}
+  footer .line{margin:4px 0}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="crumb"><b>飞行汽车产品深度分析</b> <span class="en">Flying-Car Product Analysis</span></span>
+    <span class="badge">证据截止 2026-11-22 · Evidence cut-off</span>
+    <span class="badge">版本 1.0</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">飞行汽车产品全方位调研与分析 <span class="en">A comprehensive analysis of a flying-car product</span></div>
+    <h1>PAL-V Liberty「飞行汽车」：技术可行性、适航与市场边界<br><span class="en" style="font-size:.55em;font-weight:400">PAL-V Liberty “FlyDrive”: Technical, Airworthiness, and Market Feasibility</span></h1>
+    <div class="lead">
+      它是全球少数先拿到<b>欧洲道路准入</b>、又被 EASA 给出「无技术异议」的路行式飞行汽车——一台把<b>自转旋翼机</b>与<b>三轮车</b>焊进同一副车身的荷兰产品。但最值得研究的是它的「证据倒挂」：公路一侧 2020 年就已合法上路，航空一侧的生产型却至今尚未公开首飞。真正的问题，是旋翼机这条「不能垂直起降」的技术路线，如何用更长的航程与发动机失效时的自转滑降安全，去交换适航节奏上的漫长等待。
+      <span class="en">It is one of the few roadable flying cars to have secured European road approval and earned an EASA “No Technical Objection” — a Dutch machine that welds an autogyro and a three-wheeled car into one airframe. Yet its most instructive feature is an evidence inversion: the road side has been legal to drive since 2020, while the production aircraft has still not publicly flown. The real question is how a “no-VTOL” gyroplane route trades longer range and engine-out autorotation safety for a long wait on airworthiness.</span>
+    </div>
+    <div class="meta">
+      <span><b>作者：</b>武亿</span>
+      <span><b>院校：</b>吉林大学 · 汽车工程学院</span>
+      <span><b>证据截止：</b>2026-11-22 <span class="en">Evidence cut-off</span></span>
+      <span><b>版本：</b>1.0</span>
+    </div>
+    <figure style="margin-top:22px">
+      <img src="images/hero.jpg" alt="PAL-V Liberty 路行式旋翼机飞行汽车整体外观">
+      <figcaption>题图：PAL-V Liberty 整体外观（来源：环球网 auto.huanqiu.com，编译自 autocar）。图片仅用于识别研究对象，不代表本文对其飞行能力作背书。</figcaption>
+    </figure>
+  </div>
+
+  <div class="grid">
+    <nav class="toc" aria-label="目录">
+      <h4>Contents 目录</h4>
+      <a href="#exec">执行摘要 Executive summary</a>
+      <a href="#method">01 研究设计与证据边界</a>
+      <a href="#path">02 发展路径</a>
+      <a href="#product">03 产品定义</a>
+      <a href="#arch">04 系统架构与关键技术</a>
+      <a href="#physics">05 飞行的物理边界</a>
+      <a href="#safety">06 安全、SOTIF 与适航</a>
+      <a href="#scenario">07 应用场景</a>
+      <a href="#market">08 市场可行性</a>
+      <a href="#compare">09 竞品比较</a>
+      <a href="#roadmap">10 工程化路线</a>
+      <a href="#teaching">11 方法复用与延伸</a>
+      <a href="#limits">12 局限与未决问题</a>
+      <a href="#refs">参考文献</a>
+    </nav>
+
+    <main>
+
+      <!-- 执行摘要 -->
+      <section id="exec">
+        <h2><span class="num">执行摘要</span> Executive Summary</h2>
+        <div class="stats">
+          <div class="stat"><div class="v">3<small>轮</small>+旋翼机</div><div class="l">路行式 · 自转旋翼（不能垂直起降）</div></div>
+          <div class="stat"><div class="v">~180 <small>km/h</small></div><div class="l">飞行最高速</div></div>
+          <div class="stat"><div class="v">~500 <small>km</small></div><div class="l">飞行航程 · 续航约 4 h</div></div>
+          <div class="stat"><div class="v">~180 <small>m</small></div><div class="l">起飞滑跑距离（需跑道）</div></div>
+          <div class="stat"><div class="v">€29.9<small>万</small>起</div><div class="l">Sport 版 · 先驱版 €49.9 万</div></div>
+          <div class="stat"><div class="v">664 <small>kg</small></div><div class="l">空重 · 最大起飞 910 kg</div></div>
+          <div class="stat"><div class="v">2020<small>取证</small> / TC<small>待取</small></div><div class="l">道路已合法 · 航空适航未落地</div></div>
+        </div>
+        <ul>
+          <li>PAL-V Liberty 是一台<b>「路上开 + 天上飞」的路行式旋翼机</b>：三轮车身 + 折叠主旋翼 + 尾部推进螺旋桨，飞行时主旋翼靠气流自转产生升力，而不是像直升机那样由发动机驱动。 <span class="en">A roadable autogyro: a three-wheeler plus a folding main rotor and a pusher propeller; in flight the rotor autorotates to generate lift rather than being engine-driven like a helicopter.</span></li>
+          <li>它目前<b>已证明</b>的是：道路准入（荷兰 RDW，2020）、EASA「无技术异议 NTO」（2025-04）与生产组织批准（POA）；尚未<b>取得</b>的是航空型号合格证（TC），且<b>生产型 Liberty 截至本文证据截止日仍未公开完成首飞</b>，多源预计 2028 年前后。 <span class="en">Demonstrated: road approval (Dutch RDW, 2020), EASA “No Technical Objection” (Apr 2025) and Production Organisation Approval. Not yet: a Type Certificate, and the production Liberty has not publicly flown — multiple sources point to ~2028.</span></li>
+          <li>旋翼机路线有一个「反直觉」的安全卖点：<b>发动机空中停车后不会像石头一样坠落</b>，而是靠旋翼自转滑降。代价同样清晰——<b>不能垂直起降，需要约 180 m 跑道滑跑</b>，因此它和亿航 / 小鹏等多旋翼 eVTOL 不是同一类产品。 <span class="en">The counterintuitive safety payoff of a gyroplane: engine failure does not drop it like a stone — it autorotates down. The clear cost: no vertical takeoff, needing a ~180 m rollout, so it is not the same product class as multicopter eVTOLs.</span></li>
+          <li>它的适航基础是 EASA CS-27（小型旋翼机），适用对象是<b>持有驾照 + 旋翼机飞行执照的私人</b>，不是无人出租。市场结论应分级为「高端私人航空 / 收藏 / 培训可能成立，大众通勤不支持」。 <span class="en">Certification basis is EASA CS-27 (small rotorcraft) for a privately operated, licensed-pilot vehicle — not a pilotless taxi. Market verdict: premium private aviation / collection / training is plausible; commuting is not.</span></li>
+        </ul>
+        <div class="box key">
+          <div class="box-title">一句话结论 One-line verdict</div>
+          <p>PAL-V Liberty 的技术创新点是把<b>自转旋翼机与三轮倾斜底盘</b>整合成一个可在路空之间折叠切换的系统，并用「道路 + 航空」双轨取证规避了「一车同时满足两套标准」的经典难题；但它真正卡住的不是「会不会飞」，而是<b>生产型首飞与型号合格证</b>迟迟未落地。研究越聚焦，越应把「已取证 / 已演示 / 未验证 / 未适航」分开陈述。</p>
+        </div>
+      </section>
+
+      <!-- 01 研究方法 -->
+      <section id="method">
+        <h2><span class="num">01</span> 研究设计与证据边界 <span class="en">Research Design and Evidence Boundary</span></h2>
+        <p class="lead-para">本文采用「系统综述式案例评估」，而非宣称完成全数据库、多评审员的正式系统综述。研究对象限定为荷兰 PAL-V 公司的 Liberty「FlyDrive」飞行汽车，时间范围为 2007/2008 年公司成立至 2026 年 11 月 22 日。</p>
+        <p>检索覆盖 PAL-V 官方页面与新闻稿、EASA（CS-27 认证基础、NTO 决定）、荷兰道路主管部门 RDW、荷兰皇家航空航天研究院（NLR）复合材料旋翼报告、同行评审论文，以及 BBC、The National、Aerospace Testing International、autocar（经环球网编译）等媒体。最关键的边界是：<b>「道路取证」「EASA 无技术异议」能够支持「道路合规与航空取证路线获认可」这一观察，但不能自动证明生产型已具备可重复的飞行包线、安全完整性或型号合格证。</b><sup>[2][3][4]</sup></p>
+        <div class="box">
+          <div class="box-title">证据分级规则 Evidence grading rule</div>
+          <p>官方披露只证明企业提出了某项指标或展示了某项行为；监管决定（RDW 道路准入、EASA NTO）属于外部权威证据；第三方报道用于交叉核验；论文与标准用于解释技术机理与合规要求；本文计算只用于建立数量级判断，均不冒充官方数据。</p>
+        </div>
+        <h3>检索与筛选记录 <span class="en">Search and screening record</span></h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>来源类别 <span class="en">Source class</span></th><th>检索策略 <span class="en">Query strategy</span></th><th>用途 <span class="en">Use</span></th></tr>
+            <tr><td>企业官方</td><td>pal-v.com 产品页、新闻稿（FlyDrive milestone）</td><td>确认构型、折叠旋翼、交付与价格口径</td></tr>
+            <tr><td>监管机构</td><td>EASA NTO / CS-27；荷兰 RDW 道路准入</td><td>确认双轨取证状态与适用标准</td></tr>
+            <tr><td>研究机构</td><td>NLR 复合材料折叠旋翼报告</td><td>确认旋翼结构与折叠机构</td></tr>
+            <tr><td>新闻聚合</td><td>「PAL-V Liberty 首飞 / 认证 / 交付」「沙迦 生产」</td><td>映射报道簇、识别数字冲突</td></tr>
+            <tr><td>学术基线</td><td>flying car; gyroplane/autogyro; eVTOL; SOTIF</td><td>建立理论与技术基线</td></tr>
+            <tr><td>企业对照</td><td>亿航 EH216-S；小鹏汇天 陆地航母；Terrafugia Transition；Klein Vision AirCar</td><td>比较产品类别与商业路径</td></tr>
+          </table>
+        </div>
+        <p class="small">说明：本页所有来源检索均于 2026-11-22 完成。不同报道在发动机配置、订单数量、价格货币口径上存在差异，正文中已逐处标注「官方口径」与「报道口径」的区分。</p>
+      </section>
+
+      <!-- 02 发展路径 -->
+      <section id="path">
+        <h2><span class="num">02</span> 发展路径 <span class="en">Development Path</span></h2>
+        <p>PAL-V（Personal Air and Land Vehicle，个人空陆载具）2007/2008 年前后成立于荷兰 Raamsdonksveer。与「从航空器出发、反向长出汽车」的小鹏汇天不同，PAL-V 走的是<b>「从地面三轮车出发、再装上旋翼」</b>的路径：先用 Carver 倾斜底盘解决三轮车过弯翻覆问题，再叠加自转旋翼系统，形成一套可在路空之间折叠切换的单一结构体。</p>
+        <div class="timeline">
+          <div class="tl-item"><div class="d">2007/2008</div><div class="t">PAL-V 成立，定位「个人空陆载具」。<span class="en">PAL-V founded in Raamsdonksveer, NL.</span></div></div>
+          <div class="tl-item"><div class="d">2012.03</div><div class="t">验证机 <b>PAL-V One</b> 完成首飞。<sup>[7]</sup><span class="en">Prototype PAL-V One first flight.</span></div></div>
+          <div class="tl-item"><div class="d">2018.03</div><div class="t">日内瓦车展发布生产型 <b>Liberty</b>，开启预售。<span class="en">Production Liberty unveiled at Geneva; preorders open.</span></div></div>
+          <div class="tl-item"><div class="d">2020</div><div class="t">获<b>欧洲道路准入</b>（荷兰 RDW），成为少数可合法上路的飞行汽车。<span class="en">European road approval via Dutch RDW.</span></div></div>
+          <div class="tl-item"><div class="d">2024.11</div><div class="t">与荷兰 NLR 完成复合材料<b>折叠碳纤维旋翼</b>。<span class="en">Composite folding rotor blades completed with NLR.</span></div></div>
+          <div class="tl-item"><div class="d">2025.04</div><div class="t">EASA 出具<b>「无技术异议 NTO」</b>——FlyDrive 类别全球首次，进入七个取证阶段中的最后阶段。<sup>[2][3][4]</sup><span class="en">EASA issues the first “No Technical Objection” for a FlyDrive vehicle.</span></div></div>
+          <div class="tl-item"><div class="d">2025</div><div class="t">获欧洲<b>生产组织批准 POA</b>，可工业批量生产。<span class="en">European Production Organisation Approval granted.</span></div></div>
+          <div class="tl-item"><div class="d">2026–2028</div><div class="t">生产型首飞与交付预期（欧洲优先，阿联酋 ~2027）；TC 仍待落地。<span class="en">Production first flight and deliveries expected ~2026–2028; TC still pending.</span></div></div>
+        </div>
+        <figure>
+          <img src="images/flight.jpg" alt="PAL-V Liberty 起飞/飞行姿态" loading="lazy">
+          <figcaption>图 1. PAL-V Liberty 起飞/飞行姿态（来源：环球网 auto.huanqiu.com，编译自 autocar）。</figcaption>
+        </figure>
+        <div class="box warn">
+          <div class="box-title">关键辨析：「道路取证」领先于「航空取证」</div>
+          <p>这是一处罕见的<b>证据倒挂</b>：Liberty 的地面身份早在 2020 年就合法化，而空中身份——生产型首飞、型号合格证——反而迟迟未完成。<b>「能合法上路」不代表「能合法上天」</b>；二者之间隔着 CS-27 适航审定的完整周期。把「全球首款获准生产的飞行汽车」直接读成「已经能交付飞行」，是媒体报道中最常见的偷换。<sup>[5][7]</sup></p>
+        </div>
+      </section>
+
+      <!-- 03 产品定义 -->
+      <section id="product">
+        <h2><span class="num">03</span> 产品定义 <span class="en">Product Definition</span></h2>
+        <p>PAL-V Liberty 不是「一台汽车」也不是「一台飞机」，而是一个<b>单一结构体</b>在两个模态间切换：路面是三轮车，空中是旋翼机。理解它的关键，是理解它只有一个机身，却要同时满足<b>道路</b>与<b>航空</b>两套监管身份——这与小鹏「陆地航母」把汽车与飞行器拆成两个独立模块、分头取证的分体式思路正好相反。</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>模态 <span class="en">Mode</span></th><th>构型 <span class="en">Configuration</span></th><th>关键参数 <span class="en">Key spec</span></th><th>监管身份 <span class="en">Regulatory identity</span></th></tr>
+            <tr>
+              <td><b>路面模式</b><br><span class="en">Road mode</span></td>
+              <td>三轮车身 + Carver 倾斜底盘（过弯向内侧倾），旋翼/螺旋桨折叠收纳</td>
+              <td>最高 ~160 km/h；0–100 km/h &lt;9 s；道路续航 ~1300 km；车长约 4 m</td>
+              <td>机动车（欧洲道路准入 / 荷兰 RDW）</td>
+            </tr>
+            <tr>
+              <td><b>飞行模式</b><br><span class="en">Flight mode</span></td>
+              <td>自转旋翼机：折叠主旋翼展开 + 尾部推进螺旋桨；纵排双座</td>
+              <td>最高 ~180 km/h；航程 ~400–500 km；续航 ~4 h；升限 ~3500 m；需 ~180 m 滑跑</td>
+              <td>航空器（EASA CS-27 适航审定）</td>
+            </tr>
+          </table>
+        </div>
+        <figure>
+          <img src="images/road.jpg" alt="PAL-V Liberty 路面行驶模式（三轮倾斜车身）" loading="lazy">
+          <figcaption>图 2. PAL-V Liberty 路面模式：三轮车身，弯道倾斜（Carver 系统）（来源：环球网 auto.huanqiu.com，编译自 autocar）。</figcaption>
+        </figure>
+        <p>「路行式（roadable）」是它区别于纯 eVTOL 与分体式方案的本质：<b>同一副车身既要能过碰撞与道路法规，又要能过气动与适航</b>。路行式的代价是重量与模态切换的机电复杂度（折叠机构、双发动机、双保险、双维保）；收益则是「从车库直接开到跑道，落地直接开回家」的端到端地面可达性，这是亿航、Joby 等固定起降场方案不具备的。</p>
+        <div class="box key">
+          <div class="box-title">为什么选旋翼机而不是固定翼 Why a gyroplane, not a fixed-wing</div>
+          <p>相比 Terrafugia Transition 这类「折叠固定翼」路行飞机，旋翼机的<b>机翼（旋翼）占地更小、对起降场要求更低</b>，落地后旋翼可沿中线折叠贴合车身；相比直升机，旋翼机的主旋翼在飞行中<b>不需要发动机驱动、也没有复杂的变距与尾桨</b>，机械上更简单。这些特性让它更适合「塞进一辆车的尺寸」。</p>
+        </div>
+      </section>
+
+      <!-- 04 架构 -->
+      <section id="arch">
+        <h2><span class="num">04</span> 系统架构与关键技术 <span class="en">Architecture and Technology</span></h2>
+        <p>PAL-V Liberty 的技术创新不在「会飞」，而在三件事：<b>自转旋翼升力系统</b>、<b>路空折叠切换机构</b>、<b>Carver 倾斜三轮底盘</b>。三者共同回答了一个老问题——如何把一架飞机塞进一辆可上路的三轮车。</p>
+        <div class="arch">
+          <div class="sys">
+            <div class="col">
+              <div class="node"><h5>主旋翼 · Main rotor</h5><p>自转升力（飞行中无发动机驱动）；直径约 10.75 m；碳纤维、中线折叠</p></div>
+              <div class="node"><h5>尾部推进螺旋桨 · Pusher prop</h5><p>提供前向推力，让气流驱动旋翼自转</p></div>
+            </div>
+            <div class="link">折叠 / 展开<br><span class="en">fold &amp; unfold · ~5–10 min</span></div>
+            <div class="col">
+              <div class="node"><h5>双发动机 · Twin engines</h5><p>Rotax 912iS（飞行）+ 第二台道路发动机；空中两台并用、地面只用一台</p></div>
+              <div class="node"><h5>倾斜底盘 · Tilting chassis</h5><p>三轮 + Carver 动态车身控制（DVC 专利），过弯向内倾斜防翻覆</p></div>
+            </div>
+          </div>
+          <div class="node ext" style="margin-top:12px"><h5>外部约束 · External（虚线边界之外，与机内硬件同等重要）</h5><p>道路法规（RDW 已取证）· 航空适航（EASA CS-27，NTO→TC）· 起降跑道（≈180 m）· 双执照（汽车驾照 + 旋翼机飞行执照）· 天气/目视条件</p></div>
+        </div>
+        <div class="tbl-caption">图 3. 系统架构（据公开信息重构）。虚线边界的监管与场地约束，与机内硬件同等重要；未公开的控制拓扑与安全机制不在此臆测。</div>
+        <figure>
+          <img src="images/engine.jpg" alt="PAL-V Liberty 发动机舱细节" loading="lazy">
+          <figcaption>图 4. PAL-V Liberty 发动机舱细节（来源：环球网 auto.huanqiu.com，编译自 autocar）。</figcaption>
+        </figure>
+
+        <h3>4.1 自转旋翼：升力不靠发动机 <span class="en">Autorotation: lift without engine power</span></h3>
+        <p>旋翼机与直升机的根本区别：直升机靠发动机驱动主旋翼同时产生升力与前向分量，而旋翼机靠<b>尾部推进螺旋桨产生前向速度，气流穿过旋翼盘面驱动旋翼自转</b>，再由自转的旋翼产生升力。<sup>[6]</sup> 地面滑跑时，通过取力器与离合器先把旋翼预旋到一定转速（约 185 rpm）再离地。<sup>[6]</sup> 这一原理带来两个直接后果：<b>一是不能悬停、不能垂直起降；二是发动机停车时旋翼仍在自转，可受控滑降。</b></p>
+
+        <h3>4.2 折叠旋翼 + 双发动机冗余 <span class="en">Folding rotor and twin-engine redundancy</span></h3>
+        <p>飞行模式用 Rotax 912iS 航空活塞发动机驱动尾部螺旋桨；道路模式使用第二台小排量车用发动机（早期原型为 660 cc 涡轮三缸，约 65 hp），空中两台并用、地面只用一台。<sup>[6]</sup> 双发动机一方面提供动力冗余，另一方面是因为整车空重已达 664 kg、无空间布置涡轮增压所需的中冷与管路。<sup>[6]</sup> 碳纤维折叠旋翼沿中线折叠后贴合车身，与 NLR 合作完成。<sup>[1]</sup> 注意：发动机具体配置在官方与媒体口径间存在差异，本文并列标注。</p>
+
+        <h3>4.3 Carver 倾斜底盘 <span class="en">Carver tilting chassis</span></h3>
+        <p>旋翼折叠后整车重心升高，三轮车在低速过弯时极易翻覆。PAL-V 通过收购 CarverOne 的<b>动态车身控制（DVC）专利</b>，让车身像摩托车一样在弯道向内侧倾斜，保持三轮同时贴地。<sup>[6]</sup> 这套系统是「路空一体」得以成立的地面工程前提——没有它，折叠旋翼带来的重心问题会让路面模式不可用。</p>
+      </section>
+
+      <!-- 05 物理边界 -->
+      <section id="physics">
+        <h2><span class="num">05</span> 飞行的物理边界 <span class="en">The Physical Boundary of Flight</span></h2>
+        <p>旋翼机的物理特性非常清晰：<b>巡航效率高于多旋翼、起降场地要求低于固定翼，但不能垂直起降</b>。多旋翼靠多个旋翼持续做功维持悬停，能量消耗高、速度上不去；旋翼机在平飞时旋翼靠气流自转、仅尾部螺旋桨持续做功，因此航程（~500 km）显著高于同尺寸多旋翼 eVTOL，但代价是必须滑跑起飞、不能悬停。</p>
+        <div class="box warn">
+          <div class="box-title">最关键的一条物理边界：不能垂直起降</div>
+          <p>Liberty 起飞需要约 180 m 跑道滑跑，且需约 200×100 m 的安全空域。<sup>[6]</sup> 这意味着它<b>不能像亿航 / 小鹏那样从楼顶或草坪直接垂直起飞</b>，需要机场或跑道。把「飞行汽车」想象成「随时随地起飞」是一种常见误读——路行式旋翼机本质是「能上路的飞机」，不是「会飞的汽车」。</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>能力层级 <span class="en">Capability level</span></th><th>定义 <span class="en">Definition</span></th><th>2026 公开证据 <span class="en">Public evidence</span></th><th>判定 <span class="en">Assessment</span></th></tr>
+            <tr><td>L1 抬升 / 离地</td><td>短时离地、可控起降</td><td>PAL-V One 原型 2012 年首飞；生产型未公开首飞</td><td class="verdict-mid">原型已演示</td></tr>
+            <tr><td>L2 自稳定</td><td>扰动下保持姿态并安全落地</td><td>旋翼机自转滑降原理成熟，但生产型试飞数据未公开</td><td class="verdict-mid">待系统验证</td></tr>
+            <tr><td>L3 持续飞行</td><td>可重复的任务续航与飞行包线</td><td>官方宣称 ~500 km / 4 h，但生产型包线未通过取证锁定</td><td class="verdict-mid">待验证</td></tr>
+            <tr><td>L4 运输运行</td><td>受监管区域内载人运输</td><td>道路已取证；航空 TC 未取得，首飞预计 2028</td><td class="verdict-bad">未成立</td></tr>
+          </table>
+        </div>
+        <p>「会飞」与「飞行汽车」之间隔着四个问题：能否安全产生<b>持续</b>升力、能否在可控航迹上完成运输、能否在预期天气下<b>重复</b>运行、能否获得道路与航空两套体系的<b>合法身份</b>。Liberty 已经扎实回答了第四个问题的道路部分，第一、二、三问题仍主要停留在「原型已飞、生产型待飞」的状态。</p>
+      </section>
+
+      <!-- 06 安全与适航 -->
+      <section id="safety">
+        <h2><span class="num">06</span> 安全、SOTIF 与适航 <span class="en">Safety, SOTIF, and Airworthiness</span></h2>
+        <p>这是本案例最关键的一节。Liberty 走<b>道路 + 航空双轨取证</b>：道路侧（RDW）已闭环，航空侧（EASA CS-27）仍在进行。<b>它能否作为飞行汽车交付，取决于航空型号合格证（TC），而不是道路准入。</b></p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>时间 <span class="en">Date</span></th><th>事项 <span class="en">Event</span></th><th>状态 <span class="en">Status</span></th></tr>
+            <tr><td>2020</td><td>欧洲道路准入（荷兰 RDW）</td><td class="verdict-good">已取证</td></tr>
+            <tr><td>2025.04</td><td>EASA「无技术异议 NTO」（FlyDrive 类别首次，进入最后取证阶段）</td><td class="verdict-mid">里程碑</td></tr>
+            <tr><td>2025</td><td>欧洲生产组织批准（POA）</td><td class="verdict-good">已取得</td></tr>
+            <tr><td>~2028</td><td>生产型首飞 + 型号合格证（TC）</td><td class="verdict-mid">待落地</td></tr>
+          </table>
+        </div>
+        <div class="box key">
+          <div class="box-title">一张容易读错的关键点：NTO ≠ TC</div>
+          <p>「无技术异议 NTO」是 EASA 对 PAL-V 合规验证路线图的背书，确认<b>未发现阻碍取证的技术风险</b>，但它<b>不是型号合格证（TC）</b>——真正的适航审定与试飞仍在后面。<sup>[2][3][4]</sup> 同理，「生产组织批准 POA」证明企业具备批量制造能力，也不等于产品已经适航。三者叠加，反映的是「取证路线清晰、取证仍未完成」。</p>
+        </div>
+        <h3>自转旋翼的固有安全 <span class="en">The inherent safety of autorotation</span></h3>
+        <p>旋翼机最常被引用的安全优势是：<b>发动机空中停车后，旋翼仍靠气流自转，可像「梧桐籽」一样受控飘降</b>，而不是像多旋翼失能那样直接坠落。<sup>[6]</sup> 但这一优势是「原理层面的固有安全」，不等于「全工况已验证」——其成立依赖足够的前向速度、高度与驾驶员操纵，且需要试飞数据坐实滑降包线。</p>
+        <h3>安全框架与 SOTIF <span class="en">Safety framework and SOTIF</span></h3>
+        <p>航空侧适用 CS-27（小型旋翼机）的适航要求；道路侧则要满足机动车功能安全（ISO 26262）与预期功能安全（ISO 21448 / SOTIF）的方法论。<sup>[14][15][16]</sup> SOTIF 在这里尤其关键：很多风险不来自硬件故障，而来自<b>功能不足与合理误用</b>——折叠旋翼未完全锁止就起飞、路空模态切换误操作、路面倾斜系统与飞行操纵的冲突、低空阵风下的自转包线边界等。公开材料尚未系统披露这些场景的风险接受与验证证据。</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>风险域 <span class="en">Risk domain</span></th><th>可能危害 <span class="en">Potential harm</span></th><th>必须验证的证据 <span class="en">Required evidence</span></th></tr>
+            <tr><td>旋翼折叠机构</td><td>未锁止起飞、飞行中折叠失效</td><td>互锁、行程检测、紧急中止</td></tr>
+            <tr><td>动力与推进</td><td>发动机停车、推力丧失</td><td>自转滑降包线、双发动机冗余验证</td></tr>
+            <tr><td>模态切换</td><td>路↔空切换误操作、系统冲突</td><td>状态机、防误触、SOTIF 场景验证</td></tr>
+            <tr><td>倾斜底盘</td><td>路面过弯翻覆</td><td>DVC 倾斜包线、侧风/路面摩擦验证</td></tr>
+            <tr><td>运营环境</td><td>跑道条件、低空阵风、目视误判</td><td>天气包线、起飞距离、跑道隔离</td></tr>
+            <tr><td>监管身份</td><td>无证运行、空域冲突</td><td>TC、运行许可、双执照</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 07 应用场景 -->
+      <section id="scenario">
+        <h2><span class="num">07</span> 应用场景 <span class="en">Application Scenarios</span></h2>
+        <p>把「技术可行、运营可行、市场可行」当成三件事来评估，最先成立的场景不是城市通勤，而是<b>私人高端飞行体验、区域点对点出行与飞行培训</b>——这些场景恰好能发挥路行式「门到门 + 跑道起降」的特性。</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>场景 <span class="en">Scenario</span></th><th>技术适配 <span class="en">Technical fit</span></th><th>监管难度 <span class="en">Regulatory burden</span></th><th>支付意愿 <span class="en">Willingness to pay</span></th><th>综合判断 <span class="en">Verdict</span></th></tr>
+            <tr><td>私人高端飞行体验 / 收藏</td><td>高</td><td>中</td><td>高</td><td class="verdict-good">近期最现实</td></tr>
+            <tr><td>区域点对点（两城间短途）</td><td>高</td><td>中</td><td>中</td><td class="verdict-good">可试点</td></tr>
+            <tr><td>飞行培训 / 执照训练</td><td>高</td><td>中</td><td>中</td><td class="verdict-good">可试点</td></tr>
+            <tr><td>应急 / 消防快速到达</td><td>中（荷兰消防部门已订）</td><td>高</td><td>中</td><td class="verdict-mid">情境依赖</td></tr>
+            <tr><td>物流运输</td><td>低（载重小、需跑道）</td><td>高</td><td>中</td><td class="verdict-bad">不适配</td></tr>
+            <tr><td>城市通勤 / 空中出租车</td><td>低（需跑道、无垂直起降）</td><td>极高</td><td>中</td><td class="verdict-bad">不可行</td></tr>
+          </table>
+        </div>
+        <p class="small">表 5. 定性评估，不表示精确概率。技术适配考虑载荷、续航、起降与维护；监管难度越高，进入公共运行所需证据越多。</p>
+        <p>一个常被忽略的差异化场景是<b>应急/消防</b>：报道称荷兰消防部门已纳入首批客户。<sup>[5]</sup> 路行式在「先驾车抵达、再短距起降侦察/快速到达」上确有逻辑——但这也受跑道、天气与执照限制，只能作为情境依赖的补充能力，不能替代直升机或无人机。城市通勤则需要载客适航、起降网络与全天候高频周转，而 Liberty「需跑道滑跑」的物理特性本身就把这条路径排除了。</p>
+      </section>
+
+      <!-- 08 市场可行性 -->
+      <section id="market">
+        <h2><span class="num">08</span> 市场可行性 <span class="en">Market Feasibility</span></h2>
+        <p>Liberty 的定价（Sport 版 €29.9 万、先驱版 €49.9 万，约合人民币 230–390 万元）决定了它<b>不是一个大众产品，而是一个高端私人航空 / 收藏品类目</b>。<sup>[1]</sup> 本文不把「飞行汽车万亿市场」直接乘上份额——那类宏观预测包含无人机、通航、基础设施与服务，不能用来给单款超高端产品定价销量。</p>
+
+        <h3>需求侧：订单是什么性质 <span class="en">What the orders actually mean</span></h3>
+        <p>订单口径在来源间存在差异：有报道称<b>首批约 250 台已售出、订单排满未来三年</b>，也有口径称<b>约 100 台确定订单 + 约 1000 台购买意向</b>，另有与 Jetex 在中东签下的 100+ 台合作。<sup>[5][7]</sup> 无论取哪个口径，这些数字都是<b>意向性需求信号</b>：证明一部分高净值客户与机构愿意为优先权承担资金占用，但不等于可确认收入、不可退款订单或可持续毛利。</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>情境 <span class="en">Scenario</span></th><th>教学假设均价 <span class="en">Teaching price</span></th><th>年交付量 <span class="en">Annual units</span></th><th>订单转化率 <span class="en">Conversion</span></th><th>年收入量级 <span class="en">Annual revenue</span></th><th>成立条件 <span class="en">Condition</span></th></tr>
+            <tr><td>保守</td><td>€30 万</td><td>100 台</td><td>~10%</td><td>~€0.3 亿</td><td>TC 落地缓慢，仅欧洲小批量交付</td></tr>
+            <tr><td>基准</td><td>€32 万</td><td>250 台</td><td>~25%</td><td>~€0.8 亿</td><td>TC 取得，欧洲 + 中东（Jetex）交付</td></tr>
+            <tr><td>积极</td><td>€35 万（含服务）</td><td>500 台</td><td>满产</td><td>~€1.75 亿</td><td>沙迦产线 + 海外取证 + 高净值需求持续</td></tr>
+          </table>
+        </div>
+        <p class="small">表 6. 价格为教学敏感性假设，非官方售价；交付量与转化率为情景变量，不构成销量预测。收入仅按「价格 × 交付量」估算，未扣税费、渠道、维保与事故成本。</p>
+        <h3>真正的风险不在「有没有人围观」，而在生命周期成本 <span class="en">Lifecycle cost, not attention</span></h3>
+        <p>一台路行式私人航空器的持有成本远超一辆车：<b>双执照</b>（汽车驾照 + 旋翼机飞行执照，报道称约 40 小时培训 + 多项考试）、<b>双保险</b>（路 + 空）、跑道/起降场使用费、空域申报、年度适航检查、碳纤维结构与折叠机构维护。<sup>[6]</sup> 若用户主要用途是低频体验，「单次飞行成本」会高到只有高净值客群能承受。因此市场结论应分级：<b>事件营销价值高；限量销售可能成立；高频服务市场缺乏证据；大众出行市场不支持。</b></p>
+      </section>
+
+      <!-- 09 竞品比较 -->
+      <section id="compare">
+        <h2><span class="num">09</span> 竞品比较 <span class="en">Comparison with Competitors</span></h2>
+        <p>横向比较的关键不是谁飞得更高，而是<b>每个产品如何闭环自己的验证路径</b>，以及各自的物理取舍。</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>产品 <span class="en">Product</span></th><th>类别 <span class="en">Class</span></th><th>验证路径 <span class="en">Validation path</span></th><th>主要优势 <span class="en">Strength</span></th><th>主要约束 <span class="en">Constraint</span></th></tr>
+            <tr><td><b>PAL-V Liberty</b></td><td>路行式旋翼机（三轮车 + 自转旋翼）</td><td>道路（RDW，已取证）+ 航空（EASA CS-27，NTO→TC）</td><td>门到门可达、航程较长、自转滑降安全</td><td>不能垂直起降、需跑道、生产型未首飞</td></tr>
+            <tr><td>小鹏汇天 陆地航母</td><td>分体式（陆行体 + 多旋翼 eVTOL）</td><td>陆行体按机动车、飞行体按 CAAC TC/PC</td><td>车机分工、C 照、移动补能、量产线</td><td>航程短、TC 未落地、运营复杂</td></tr>
+            <tr><td>Terrafugia Transition</td><td>路行式固定翼（折叠翼）</td><td>道路 + 航空双轨（吉利旗下）</td><td>固定翼巡航效率更高</td><td>翼展大、起降场要求高、量产未兑现</td></tr>
+            <tr><td>Klein Vision AirCar</td><td>路行式固定翼（折叠翼）</td><td>斯洛伐克适航证（2022），城际飞行（2021）</td><td>真完成过两城间飞行</td><td>仍属原型级、取证范围窄</td></tr>
+            <tr><td>亿航 EH216-S</td><td>自主多旋翼 eVTOL</td><td>全球唯一集齐 TC/PC/AC/OC + 商业运营</td><td>全链条合规、已运营</td><td>无人载客、航程约 30 km、无路行能力</td></tr>
+            <tr><td>Joby S4</td><td>倾转旋翼有人 eVTOL</td><td>FAA 认证推进中</td><td>航程/速度、商业航线目标</td><td>适航周期、起降场、成本、无路行能力</td></tr>
+          </table>
+        </div>
+        <p class="small">竞品定位来自各企业公开页面，属企业自证材料，应与监管文件与第三方证据交叉使用。</p>
+
+        <figure class="chart viz-root">
+          <div class="title">价格量级对比（教学近似 · 万元人民币）</div>
+          <div class="subtitle">汇率按 €1≈¥7.8、$1≈¥7.2 折算，仅为数量级比较，非官方统一口径</div>
+          <svg viewBox="0 0 660 300" width="100%" role="img" aria-label="飞行汽车价格量级对比横向柱状图，从约200万元到约390万元">
+            <line x1="170" y1="24" x2="170" y2="280" stroke="var(--grid)" stroke-width="1"/>
+            <line x1="170" y1="280" x2="640" y2="280" stroke="var(--grid)" stroke-width="1"/>
+            <g class="bar">
+              <text class="bar-label" x="160" y="53" text-anchor="end">PAL-V Liberty · 先驱版</text>
+              <rect x="170" y="40" width="390" height="24" rx="4" fill="var(--series-1)"/>
+              <text class="bar-val" x="566" y="57">~390 万</text>
+            </g>
+            <g class="bar">
+              <text class="bar-label" x="160" y="97" text-anchor="end">亿航 EH216-S</text>
+              <rect x="170" y="84" width="239" height="24" rx="4" fill="var(--series-1-weak)"/>
+              <text class="bar-val" x="415" y="101">~239 万</text>
+            </g>
+            <g class="bar">
+              <text class="bar-label" x="160" y="141" text-anchor="end">PAL-V Liberty · Sport 版</text>
+              <rect x="170" y="128" width="235" height="24" rx="4" fill="var(--series-1)"/>
+              <text class="bar-val" x="411" y="145">~235 万</text>
+            </g>
+            <g class="bar">
+              <text class="bar-label" x="160" y="185" text-anchor="end">Alef Model A</text>
+              <rect x="170" y="172" width="215" height="24" rx="4" fill="var(--series-1-weak)"/>
+              <text class="bar-val" x="391" y="189">~215 万</text>
+            </g>
+            <g class="bar">
+              <text class="bar-label" x="160" y="229" text-anchor="end">小鹏汇天 陆地航母</text>
+              <rect x="170" y="216" width="200" height="24" rx="4" fill="var(--series-1-weak)"/>
+              <text class="bar-val" x="376" y="233">&lt;200 万</text>
+            </g>
+            <g class="bar">
+              <text class="bar-label" x="160" y="273" text-anchor="end">Terrafugia Transition</text>
+              <rect x="170" y="260" width="200" height="24" rx="4" fill="var(--series-1-weak)"/>
+              <text class="bar-val" x="376" y="277">~200 万</text>
+            </g>
+          </svg>
+          <figcaption>深色柱＝本文研究对象 PAL-V；浅色柱＝竞品。价格为公开报道的起售价折算，只用于建立数量级判断，不构成对单款产品销量的推导。</figcaption>
+        </figure>
+
+        <p>三条路线的分野很清晰：<b>亿航、Joby 从「航空器」出发</b>，核心挑战是适航与运营成本；<b>小鹏、Alef 从「道路与低空融合」出发</b>，核心挑战是重量、模态切换与双重监管；<b>PAL-V、Terrafugia、AirCar 从「路行式真飞机」出发</b>，核心挑战是同一结构体同时满足道路与航空两套标准。PAL-V 的差异化，在于它用<b>旋翼机</b>而不是固定翼来压缩「飞机塞进汽车」的尺寸代价——但也因此放弃了垂直起降。</p>
+      </section>
+
+      <!-- 10 工程化路线 -->
+      <section id="roadmap">
+        <h2><span class="num">10</span> 工程化路线（Go/No-Go 判据） <span class="en">Engineering Roadmap</span></h2>
+        <p>可信的工程化路线不从「扩大宣传」开始，而从「定义可验证的包线与安全目标」开始。建议把下一阶段证据拆成四道门槛：</p>
+        <div class="box" style="border-left-color:var(--accent)"><b>Gate 1 · 生产型首飞包线：</b>公开生产型 Liberty 的首飞与重复飞行数据，锁定空载/满载质量、起飞距离、高度、时间、风速边界。</div>
+        <div class="box" style="border-left-color:var(--accent)"><b>Gate 2 · 适航取证闭环：</b>在 CS-27 基础上取得型号合格证（TC），明确昼间目视、私人运行的运行限制与条件。</div>
+        <div class="box" style="border-left-color:var(--accent)"><b>Gate 3 · 安全案例：</b>公开自转滑降包线、折叠旋翼锁止互锁、路空模态切换 SOTIF 场景验证证据。</div>
+        <div class="box" style="border-left-color:var(--accent)"><b>Gate 4 · 运营与经济闭环：</b>起降场/跑道网络、双执照培训、空域申报、双保险与维护周转，证明「门到门」模式能高频运转。</div>
+        <p>若四道门槛无法公开至少部分证据，最合理的结论不是「项目失败」，而是「仍停留在取证与工程集成阶段」。对研究者和学生而言，保留不确定性比用愿望填补空白更专业。</p>
+      </section>
+
+      <!-- 11 方法复用与延伸 -->
+      <section id="teaching">
+        <h2><span class="num">11</span> 方法复用与延伸 <span class="en">Reusable Method</span></h2>
+        <p>这个案例可以拆成五个可复用的分析步骤：① 制作证据表，把十条最吸引人的媒体陈述转成「来源 / 证据类型 / 可支持结论 / 不可支持结论」；② 画系统边界图，标出旋翼、推进、折叠机构、倾斜底盘、跑道与监管机构之间的接口；③ 写故障清单，至少覆盖旋翼折叠、动力、模态切换、倾斜与人员执照；④ 为六个场景建评价矩阵，而不是只讨论最乐观的通勤场景；⑤ 用市场敏感性表说明价格、转化率、交付量变化如何影响收入。</p>
+        <p>这一方法框架同样适用于其他研究对象：亿航 EH216-S、Joby S4、小鹏汇天陆地航母、Alef Model A、eVTOL 动力电池、分布式电推进、低空通信导航监视网络、垂直起降场或飞行汽车保险。方法框架保持一致，研究对象越具体，结论越可验证。</p>
+        <div class="box">
+          <div class="box-title">AI 使用记录</div>
+          <p>本页由 AI 辅助完成资料检索、结构与初稿撰写；关键数字均回溯至公开来源（见参考文献），作者已对「生产型首飞时间」「发动机配置」「订单数量」「价格货币」等冲突信息逐处核对并标注。</p>
+        </div>
+      </section>
+
+      <!-- 12 局限 -->
+      <section id="limits">
+        <h2><span class="num">12</span> 局限与未决问题 <span class="en">Limitations and Open Questions</span></h2>
+        <ul>
+          <li>生产型 Liberty 截至本文证据截止日未公开首飞，飞行包线、起飞距离、自转滑降包线等关键数据缺失。</li>
+          <li>发动机配置存在口径不一（飞行用 Rotax 912iS 较一致，道路用第二台发动机在「大发 Copen 660cc」与「双 Rotax」之间说法不一），本文并列标注但无法单方面裁决。</li>
+          <li>订单数量存在口径不一（首批 250 台 vs 约 100 台确定 + 1000 台意向），价格存在 EUR/GBP/USD 多种货币口径，本文已标注。</li>
+          <li>本文物理与市场判断只建立数量级边界，不替代工程试验或财务预测。</li>
+          <li>适航状态变化快，TC 一旦落地将显著改变本文「生产型未首飞 / 运输运行未成立」的结论。</li>
+        </ul>
+      </section>
+
+      <!-- 参考文献 -->
+      <section id="refs">
+        <h2><span class="num">参考文献</span> References</h2>
+        <p class="small">引用采用 GB/T 7714—2015 顺序编码制，访问日期统一为 2026-11-22。</p>
+        <ol class="refs">
+          <li>PAL-V. PAL-V Liberty 官方产品页[EB/OL]. [2026-11-22]. <span class="url">https://www.pal-v.com/</span></li>
+          <li>PAL-V. FlyDrive Company PAL-V Clears Essential Certification Milestone[EB/OL]. 2025-04[2026-11-22]. <span class="url">https://www.pal-v.com/en/press/flydrive-company-pal-v-clears-essential-certification-milestone</span></li>
+          <li>Aerospace Testing International. Dutch flying car developer Pal-V gets go-ahead for EASA certification[EB/OL]. 2025-04[2026-11-22]. <span class="url">https://www.aerospacetestinginternational.com/news/dutch-flying-car-developer-pal-v-gets-go-ahead-for-easa-certification.html</span></li>
+          <li>HeliHub. EASA issues 'No Technical Objection' to PAL-V[EB/OL]. 2025-04-07[2026-11-22]. <span class="url">https://www.helihub.com/2025/04/07/easa-issues-no-technical-objection-to-pal-v/</span></li>
+          <li>The National. Production of $800,000 'flying car' prepares for lift-off in Sharjah[EB/OL]. 2025-04-18[2026-11-22]. <span class="url">https://www.thenationalnews.com/news/uae/2025/04/18/production-of-800000-flying-car-gears-up-for-lift-off-in-sharjah/</span></li>
+          <li>环球网（编译自 autocar）. PAL-V Liberty 飞行汽车实际驾驶体验 小马力发动机乐趣多[EB/OL]. [2026-11-22]. <span class="url">https://auto.huanqiu.com/article/3xqIDpRCprD</span></li>
+          <li>BBC Türkçe. Hollandalı şirkete 'dünyanın ilk ticari uçan otomobili' için üretim izni[EB/OL]. [2026-11-22]. <span class="url">https://www.bbc.com/turkce/articles/c4gj8z3e5vpo</span></li>
+          <li>eVTOL Insights. EASA issues "no technical objection" to PAL-V's FlyDrive Vehicle certification roadmap[EB/OL]. 2025-04[2026-11-22]. <span class="url">https://evtolinsights.com/easa-issues-no-technical-objection-to-pal-vs-flydrive-vehicle-certification-roadmap-clears-essential-milestone/</span></li>
+          <li>EASA. CS-27: Certification Specifications for Small Rotorcraft[S]. Cologne: EASA.</li>
+          <li>PAN G, ALOUINI M-S. Flying Car Transportation System: Advances, Techniques, and Challenges[J]. IEEE Access, 2021, 9: 24586-24603. DOI:10.1109/ACCESS.2021.3056798.</li>
+          <li>AHMED S S, HULME K F, FOUNTAS G, et al. The Flying Car—Challenges and Strategies Toward Future Adoption[J]. Frontiers in Built Environment, 2020, 6: 106. DOI:10.3389/fbuil.2020.00106.</li>
+          <li>RAJASHEKARA K, WANG Q, MATSUSE K. Flying Cars: Challenges and Propulsion Strategies[J]. IEEE Electrification Magazine, 2016, 4(1): 46-57. DOI:10.1109/MELE.2015.2509901.</li>
+          <li>INTERNATIONAL ORGANIZATION FOR STANDARDIZATION. ISO 26262:2018 Road vehicles — Functional safety[S]. Geneva: ISO, 2018.</li>
+          <li>INTERNATIONAL ORGANIZATION FOR STANDARDIZATION. ISO 21448:2022 Road vehicles — Safety of the intended functionality[S]. Geneva: ISO, 2022.</li>
+          <li>INTERNATIONAL ORGANIZATION FOR STANDARDIZATION. ISO 34502:2022 Road vehicles — Scenario based safety evaluation framework[S]. Geneva: ISO, 2022.</li>
+          <li>亿航智能. EH216-S 产品与运营[EB/OL]. [2026-11-22]. <span class="url">https://www.ehang.com/</span></li>
+        </ol>
+      </section>
+
+      <footer>
+        <div class="legend">
+          <span>官方披露 = 企业已公开演示/承诺的内容</span>
+          <span>外部证据 = 监管决定、论文、标准与第三方报道</span>
+          <span>本文估算 = 数量级判断，非产品规格</span>
+          <span>未决问题 = 参数、安全论证或监管状态缺失</span>
+        </div>
+        <div class="line">© 2026 武亿 · 吉林大学汽车工程学院</div>
+        <div class="line en">Evidence cut-off 2026-11-22 · References follow GB/T 7714—2015.</div>
+      </footer>
+
+    </main>
+  </div>
+</body>
+</html>
